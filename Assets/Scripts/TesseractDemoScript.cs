@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 public class TesseractDemoScript : MonoBehaviour
 {
+    
     [SerializeField] private Texture2D imageToRecognize;
     [SerializeField] private Text displayText;
     [SerializeField] private RawImage outputImage;
     private TesseractDriver _tesseractDriver;
     private string _text = "";
     private Texture2D _texture;
+    private Stopwatch stopwatch;
 
     private void Start()
     {
@@ -18,6 +21,26 @@ public class TesseractDemoScript : MonoBehaviour
 
         _tesseractDriver = new TesseractDriver();
         Recoginze(texture);
+        stopwatch = new Stopwatch();
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            Texture2D texture = new Texture2D(imageToRecognize.width, imageToRecognize.height, TextureFormat.ARGB32, false);
+            texture.SetPixels32(imageToRecognize.GetPixels32());
+            texture.Apply();
+
+            _tesseractDriver = new TesseractDriver();
+            Recoginze(texture);
+
+            stopwatch.Stop();
+            print(stopwatch.ElapsedMilliseconds * 1000 + "초 경과");
+        }
     }
 
     private void Recoginze(Texture2D outputTexture)
@@ -47,9 +70,9 @@ public class TesseractDemoScript : MonoBehaviour
         _text += (string.IsNullOrWhiteSpace(displayText.text) ? "" : "\n") + text;
 
         if (isError)
-            Debug.LogError(text);
+            UnityEngine.Debug.LogError(text);
         else
-            Debug.Log(text);
+            UnityEngine.Debug.Log(text);
     }
 
     private void LateUpdate()
